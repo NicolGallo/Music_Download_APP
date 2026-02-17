@@ -9,7 +9,7 @@ def descargar_mp3(url, carpeta_destino, calidad="192", progreso_callback=None):
     info_capturada = {}
 
     opciones = {
-        'format': 'bestaudio/best',
+        'format': 'best[ext=mp4]/best[ext=webm]/best',  # Evita HLS
         'outtmpl': os.path.join(carpeta_destino, '%(title)s.%(ext)s'),
         'ffmpeg_location': ffmpeg_path,
         'postprocessors': [{
@@ -18,12 +18,14 @@ def descargar_mp3(url, carpeta_destino, calidad="192", progreso_callback=None):
             'preferredquality': calidad,
         }],
         'progress_hooks': [progreso_callback] if progreso_callback else [],
-        'quiet': True,
-        'noprogress': True,
-        'skip_download': False,
-        'forcejson': True,
-        'extract_flat': False,
-        'default_search': 'auto'
+        'quiet': False,
+        'no_warnings': False,
+        'socket_timeout': 30,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        'extractor_args': {'youtube': {'skip': ['hls']}},  # Salta formatos HLS
+        'allow_unplayable_formats': False,
     }
 
     with YoutubeDL(opciones) as ydl:
